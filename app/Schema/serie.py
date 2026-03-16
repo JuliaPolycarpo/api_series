@@ -16,5 +16,5 @@ class AtualizarSchema(BaseModel):
     ano_lançamento: Optional [int] = None
 
     class Config: 
-        from_attributes = True
+       from_attributes = True
 

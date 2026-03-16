@@ -10,11 +10,5 @@ class SerieSchema(BaseModel):
         from_attributes = True
 
 
-class AtualizarSchema(BaseModel):
-    titulo: Optional [str] = None
-    descriçao: Optional[str] = None
-    ano_lançamento: Optional [int] = None
 
-    class Config: 
-       from_attributes = True
 

@@ -1,9 +1,8 @@
-from fastapi import APIRouter, HTTPException, Depends, status
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.serie import SerieModel
-from app.Schema.serie import AtualizarSchema, SerieSchema
+from app.Schema.serie import SerieSchema
 
 serie = APIRouter()
 
@@ -19,28 +18,42 @@ async def criar_serie(dados: SerieSchema, db: Session = Depends(get_db)):
 async def listar_series(db: Session = Depends(get_db)):
     return db.query(SerieModel).all()
 
-# Tarefa: Crie as rotas de atualização e deleção da API
-@serie.put("/update/{id}")
-async def atualizar_serie(id: int, dados: AtualizarSchema, db: Session = Depends(get_db)):
+@serie.put("/serie/{id}/update")
+async def atualizar_serie(id: int, dados: SerieSchema, db: Session = Depends(get_db)):
+
+    #busca os dados no banco
     serie = db.query(SerieModel).filter(SerieModel.id == id).first()
+
+    #verifica se existe
     if not serie:
-        return ("Série não encontrada")
+        raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail=f"A série com ID {id} não foi eencontrada"
+        )
+    
+    # Atualiza os campos com os novos dados
+    for campo, valor in dados.model_dump().items():
+        setattr(serie, campo, valor)
 
-    db.query(SerieModel).filter(SerieModel.id == id).update(dados.model_dump(exclude_unset=True))
     db.commit()
-    return (dados)
+    db.refresh(serie)
+    return serie
 
 
-@serie.delete("/delete")
-async def deletar_serie(id: int, db: Session = Depends(get_db)):
+@serie.delete("/serie/{id}/delete")
+async def deletar_series(id:int, db: Session = Depends(get_db)):
     id = db.query(SerieModel).filter(SerieModel.id == id).first()
 
     if not id:
-     return ("Id não encontrado")
-    
+        raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail=f"A série com ID {id} não foi encontrada"
+        )
+
     db.delete(id)
     db.commit()
-    return ("Deletado")
+    return("deletado")
+
 
 
 

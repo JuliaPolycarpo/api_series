@@ -10,10 +10,3 @@ class SerieModel(Base):
     descriçao = Column(String(255))
     ano_lançamento = Column(Integer)
 
-class update(BaseModel):
-    titulo: Optional [str] = None
-    descriçao: Optional[str] = None
-    ano_lançamento: Optional [int] = None
-
-    class Config: 
-        from_attributes = True
